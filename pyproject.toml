@@ -11,6 +11,8 @@ flask = "^3.0.0"
 metabasepy = "^1.12.0"
 discord = "^2.3.2"
 memepy = "1.2.1"
+pydub = "^0.25.1"
+speechrecognition = "^3.10.1"
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md
