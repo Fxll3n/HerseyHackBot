@@ -120,7 +120,7 @@ async def hello(ctx):
 async def join(ctx):
   channel = ctx.author.voice.channel
   await channel.connect()
-  await ctx.send(f"Joined {channel.name}")
+  await ctx.send(f"I Hacked my way into ({channel.name}).")
 
 
 @bot.command(name='roast', help='roasts someone')
