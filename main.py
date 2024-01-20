@@ -26,8 +26,6 @@ listening = False
 async def on_ready():
   print(f'Logged in as {bot.user.name}')
   print('------')
-  # Start the background task for listening
-  listen_loop.start()
 
 
 @bot.event
