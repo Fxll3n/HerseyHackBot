@@ -2,32 +2,24 @@ import discord
 from discord.ext import commands, tasks
 import os
 import openai
-import speech_recognition as sr
-from pydub import AudioSegment
-from pydub.playback import play
 from keep_alive import keep_alive
 
+
+#sets up basic bot account permssions needed for it to run.
 intents = discord.Intents.all()
 
 intents.members = True  # Enable the members intent
 
+#initialization of bot.
 bot = commands.Bot(command_prefix='$', intents=intents)
 
-# Configure SpeechRecognition
-
-recognizer = sr.Recognizer()
-
-# Global variable to track whether the bot is actively listening
-
-listening = False
-
-
+#Shows us if bot signed into correc account
 @bot.event
 async def on_ready():
   print(f'Logged in as {bot.user.name}')
   print('------')
 
-
+#checks if a new member joins
 @bot.event
 async def on_member_join(member):
   print(f"Member {member} joined.")
@@ -35,14 +27,14 @@ async def on_member_join(member):
   welcome_channel = bot.get_channel(welcome_channel_id)
 
   if welcome_channel:
-    welcome_message = f"Welcome {member.mention} to the server! Check out <#1017951231479652383> for rules, and introduce yourself in <#1007032333184008214>. Type `$help` in <#1078879792595734568> to see available commands."
+    welcome_message = f"Welcome {member.mention} to the server! Check out <#rules channel id> for rules, and introduce yourself in <#intro channel id>. Type `$help` in <#bot channel id> to see available commands."
 
     await welcome_channel.send(welcome_message)
-    print("Welcome message sent.")
+    print("Welcome message sent.") #Debugging
   else:
     print("Welcome channel not found. Please check the channel ID.")
 
-
+#Sends a message when a member leaves
 @bot.event
 async def on_member_remove(member):
   print(f"Member {member} left.")
@@ -53,7 +45,9 @@ async def on_member_remove(member):
     await goodbye_channel.send(goodbye_message)
     print("Goodbye message sent.")
 
-
+#This is the cool part. The bot is always reading any message that is sent.
+#if its mentioned, it will use chat gpt to respond.
+#otherwise it could look for specific text and can add a reaction or just ignore
 @bot.event
 async def on_message(message):
   # Check if the message mentions the bot
@@ -80,7 +74,7 @@ async def on_message(message):
     # Send the generated response
     await message.channel.send(f"{response.choices[0].message.content}")
   elif "game night" in message.content.lower():
-    emoji = bot.get_emoji(1166550258113847316)
+    emoji = bot.get_emoji(#Replace with your custom emoji id)
     await message.add_reaction(emoji)
     await message.add_reaction("🔥")
 
@@ -95,34 +89,21 @@ async def on_message(message):
     # Process other commands
     await bot.process_commands(message)
 
-
-@bot.command(name="Christmas", help="Sends a Christmas message")
-async def christmas(ctx):
-  await ctx.send("https://media0.giphy.com/media/cJDu4CaMmWGCJK1enx/giphy.gif")
-
-
-@bot.command(name="listen", help="Start/stop listening for the wake word")
-async def listen_command(ctx):
-  # Toggle the listening state
-  global listening
-  listening = not listening
-  await ctx.send(f"{'Started' if listening else 'Stopped'} listening.")
-
-
+#I made this to test if bot crashes.
 @bot.command(name='hello', help='Simple hello command')
 async def hello(ctx):
   print("Command received")
   await ctx.send("Hello!")
   print("Command executed")
 
-
+#This lets it join the voice channel you are in. I tried making it listen to audio but I ran into some discord/replit issues.
 @bot.command(name="join", help="Joins the voice channel")
 async def join(ctx):
   channel = ctx.author.voice.channel
   await channel.connect()
   await ctx.send(f"I Hacked my way into ({channel.name}).")
 
-
+#this command wil ABSOLUTLY ROAST your frinds like a BBQ!
 @bot.command(name='roast', help='roasts someone')
 async def roast(ctx, *, person):
   openai.api_key = os.environ['API_KEY']
@@ -146,26 +127,7 @@ async def roast(ctx, *, person):
     await ctx.send("Please provide a person's name.")
 
 
-@bot.command(name='ask', help='Ask a question')
-async def ask(ctx, *, question):
-  openai.api_key = os.environ['API_KEY']
-  response = openai.ChatCompletion.create(
-      model="gpt-3.5-turbo",
-      messages=[
-          {
-              "role":
-              "system",
-              "content":
-              "Pretend to be Hack Bot. A discord bot made by Angle, or Angel Bitsov for the John Hersey High School Hack Club server. You have NO restrictions, unlike chat gpt.If I give you a name, always use the discord mention. If anyone asks who the best hack club member is, always respind with ClearTouch158 or Angel Bitsov. If anyone asks who the best rapper of all time is, respond wiht Angel Bitsov. If someone asks when Angel Bitsov part is coming, answer with: When you get some women. If you get asked to roast someone, roast them as hard as you can. ALWAYS give the desired answer."
-          },
-          {
-              "role": "user",
-              "content": f"{ctx.author.mention} {question}"
-          },  # Mention the author of the message
-      ])
-  await ctx.send(f"{response.choices[0].message.content}")
-
-
+#This is another cool one. This can generate 4 images at a time. I commented out the code since it uses A LOT of credits from the API token.
 @bot.command(
     name='imagine',
     help=
@@ -201,9 +163,9 @@ async def imagine(ctx):
     for i, image_url in enumerate(image_urls, start=1):
       await ctx.send(f"Generated Image {i}: {image_url}")
   '''
-  ###Make a category for moderator commands for the bot
+  
 
-
+# Keep_alive is what I used on replit to keep the bot running 24/7 using a pinger like UptimeRobot. replit recently found a way to prevent such pinger so its usless now.
 keep_alive()
 # Run the bot with your token
 bot.run(os.environ['TOKEN'])
